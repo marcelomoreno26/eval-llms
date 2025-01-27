@@ -15,9 +15,10 @@ uv sync
 
 
 ## Example Usage
-from evaluation_metrics import BiEncoderScore
 
 ```python
+from evaluation_metrics import BiEncoderScore
+
 references = [
     "El sol brilla en el cielo.",
     "Las bicicletas son ecológicas.",
