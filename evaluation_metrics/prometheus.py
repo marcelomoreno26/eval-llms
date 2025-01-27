@@ -125,7 +125,7 @@ class PrometheusScore(evaluate.Metric):
         )
     
 
-    def extract_score(feedback):
+    def extract_score(self, feedback):
         pattern = r'Puntuación: (\d{1,2})|Puntuación: (\d{1,2}/10)|\(\d{1,2}/10\)'
         matches = re.search(pattern, feedback)
         if matches:
