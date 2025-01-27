@@ -49,6 +49,5 @@ class Accuracy(evaluate.Metric):
 
     def _compute(self, predictions: list[str], references: list[str]) -> float:
         correct_predictions = sum([prediction.lower().strip() == reference.lower().strip() for prediction, reference in zip(predictions, references)])
-        accuracy = correct_predictions / len(predictions)
         
-        return float(accuracy)
+        return correct_predictions / len(predictions)
