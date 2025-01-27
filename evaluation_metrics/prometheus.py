@@ -139,7 +139,7 @@ class PrometheusScore(evaluate.Metric):
     
 
     def _compute(self, model_name: str, predictions: list[str], references: list[str], contexts: list[str]) -> float:
-        tokenizer = AutoTokenizer(model_name)
+        tokenizer = AutoTokenizer.from_pretrained(model_name)
         model = LLM(model_name)
         messages = []
 
