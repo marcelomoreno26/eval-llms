@@ -1,5 +1,5 @@
 # eval-llms
-`eval-llms` is library that provides various useful metrics to evaluate LLMs and has been created to facilitate the creation of benchmarks 
+`eval-llms` is a library that provides various useful metrics to evaluate LLMs and has been created to facilitate the creation of benchmarks 
 with old, recent and upcoming models.
 
 The metrics follow the same interface as those of Hugging Face's [Evaluate](https://huggingface.co/docs/evaluate/index) library.
