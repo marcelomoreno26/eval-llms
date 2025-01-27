@@ -11,7 +11,10 @@ The metrics follow the same interface as those of Hugging Face's [Evaluate](http
 ```bash
 uv sync
 ```
-4. Evaluate you models with any of the metrics available.
+4. Evaluate you models with any of the metrics available. To run a script with uv use the command below.
+```bash
+uv run python <your_script.py>
+```
 
 
 ## Example Usage
