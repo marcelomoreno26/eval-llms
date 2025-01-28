@@ -35,8 +35,9 @@ predictions = [
 ]
 
 metric = BiEncoderScore()
-score = metric.compute(predictions=predictions, references=references, batch_size=4)
-print(score)
+scores, avg_score = metric.compute(predictions=predictions, references=references, return_average=True)
+print(scores)
+print(avg_score)
 ```
 
 ## Available Metrics
