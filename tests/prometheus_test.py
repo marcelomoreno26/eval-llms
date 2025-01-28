@@ -67,7 +67,7 @@ def test_return_average():
 
 def test_return_feedbacks():
     metric = PrometheusScore()
-    scores, feedbacks = metric.compute(model_name=model_name, predictions=predictions, references=references, contexts=contexts, previous_conversations=previous_conversations, return_average=True)
+    scores, feedbacks = metric.compute(model_name=model_name, predictions=predictions, references=references, contexts=contexts, previous_conversations=previous_conversations, return_feedbacks=True)
 
     assert isinstance(scores, list)
     assert all(isinstance(score, int) for score in scores)

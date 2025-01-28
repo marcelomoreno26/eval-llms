@@ -156,12 +156,12 @@ class PrometheusScore(evaluate.Metric):
         )
     
 
-    def format_conversation(conv: list[dict]):
+    def format_conversation(self, conv: list[dict]):
         role_map = {"assistant": "asistente", "user": "usuario"}
         return "\n".join([f"{role_map[mssg['role']]}: {mssg['content']}" for mssg in conv])
 
 
-    def extract_score(self, feedback):
+    def extract_score(self, feedback: str):
         pattern = r'Puntuación: (\d{1,2})|Puntuación: (\d{1,2}/10)|\(\d{1,2}/10\)'
         matches = re.search(pattern, feedback)
         if matches:
