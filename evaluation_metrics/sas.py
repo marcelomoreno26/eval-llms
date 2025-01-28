@@ -2,6 +2,7 @@ import torch
 import datasets
 import evaluate
 import numpy as np
+from transformers import AutoConfig
 from sentence_transformers import CrossEncoder
 
 
@@ -28,22 +29,29 @@ The model then generates a similarity score ranging from 0 to 1.
 
 _KWARGS_DESCRIPTION = """
 Compute Semantic Answer Similarity with a Cross Encoder.
+
 Args:
-    predictions: list of predictions.
-    references: list of references.
-    batch_size: An integer specifying the batch size for embedding computation.
-    model_name: A string with the name of the Cross Encoder to be used.
-Returns: float
-        SAS score.
+    predictions: list of strings. The predicted answers or sentences.
+    references: list of strings. The correct reference answers or sentences.
+    model_name: string, optional (default="cross-encoder/stsb-roberta-large"). The name of the Cross Encoder model to be used.
+    batch_size: int, optional (default=64). The batch size to use for embedding computation.
+    return_average: bool, optional (default=False). If True, returns both the similarity scores and the average similarity score.
+
+Returns:
+    list of float or tuple of (list of float, float):
+        - If return_average is False, returns a list of similarity scores between the prediction and reference pairs.
+        - If return_average is True, returns a tuple containing the list of similarity scores and the average similarity score.
+
 Examples:
 
-
-        >>> references = ["El sol brilla en el cielo.", "Las bicicletas son ecológicas.", "El café es una bebida popular."]
-        >>> predictions = ["El sol está en el cielo.", "Las bicicletas son buenas para el ambiente.", "El café es adictivo."]
-        >>> metric = SemanticAnswerSimilarity()
-        >>> score = metric.compute(predictions=predictions, references=references, batch_size=4)
-        >>> print(score)
-            0.7047
+    >>> references = ["El sol brilla en el cielo.", "Las bicicletas son ecológicas.", "El café es una bebida popular."]
+    >>> predictions = ["El sol está en el cielo.", "Las bicicletas son buenas para el ambiente.", "El café es adictivo."]
+    >>> metric = SemanticAnswerSimilarity()
+    >>> scores, avg_score = metric.compute(predictions=predictions, references=references, batch_size=4)
+    >>> print(scores)
+    [0.8882, 0.5813, 0.6448]
+    >>> print(avg_score)
+    0.7048
 """
 
 
@@ -65,7 +73,23 @@ class SemanticAnswerSimilarity(evaluate.Metric):
         )
 
 
-    def _compute(self, predictions: list[str], references: list[str], batch_size: int, model_name: str = "cross-encoder/stsb-roberta-large") -> float:
+    def _compute(
+        self, 
+        predictions: list[str], 
+        references: list[str],
+        model_name: str = "cross-encoder/stsb-roberta-large",
+        return_average: bool = False,
+        batch_size: int = 64, 
+    ) -> list[float] | tuple[list[float], float]:
+        
+        model_config = AutoConfig.from_pretrained(model_name)
+        if model_config.architectures:
+            is_cross_encoder = any(architectures.endswith("ForSequenceClassification") for architectures in model_config.architectures)
+
+        if not is_cross_encoder:
+            print(f"Invalid model architecture, {model_name} is not a cross-encoder.")
+            return
+        
         device = "cuda" if torch.cuda.is_available() else "cpu"
         model = CrossEncoder(model_name, device=device)
         pairs = []
@@ -73,6 +97,10 @@ class SemanticAnswerSimilarity(evaluate.Metric):
         for prediction, reference in zip(predictions, references):
             pairs.append([prediction, reference])
         
-        scores = model.predict(pairs, batch_size=batch_size)
+        scores = model.predict(pairs, batch_size=batch_size).tolist()
         
-        return float(scores.mean())
+        if return_average:
+            avg_score = float(np.mean(scores))
+            return scores, avg_score
+        
+        return scores

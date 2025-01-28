@@ -30,23 +30,30 @@ Improves assessment by applying cross-encoder and bi-encoder models and averages
 
 _KWARGS_DESCRIPTION = """
 Compute Ensemble of Semantic Answer Similarity and BiEncoder metric.
-Args:
-    predictions: list of predictions.
-    references: list of references.
-    batch_size: An integer specifying the batch size for embedding computation.
-    models : List of cross-encoder/bi-encoder model names or paths to be used for ensemble evaluation.
 
-Returns: float
-       The average score of  SAS/BiEncoder metrics.
+Args:
+    predictions: list of strings. The predicted answers or sentences.
+    references: list of strings. The correct reference answers or sentences.
+    model_names: list of strings. The list of cross-encoder and/or bi-encoder model names or paths to be used for ensemble evaluation.
+    batch_size: int, optional (default=64). The batch size to use for embedding computation.
+    return_average: bool, optional (default=False). If True, returns both the individual model scores and the average score.
+
+Returns:
+    list of float or tuple of (list of float, float):
+        - If return_average is False, returns a list of average similarity scores from the ensemble models.
+        - If return_average is True, returns a tuple containing the list of similarity scores and the average similarity score.
+
 Examples:
 
-        >>> references = ["El sol brilla en el cielo.", "Las bicicletas son ecológicas.", "El café es una bebida popular."]
-        >>> predictions = ["El sol está en el cielo.", "Las bicicletas son buenas para el ambiente.", "El café es adictivo."]
-        >>> models = ["sentence-transformers/paraphrase-multilingual-mpnet-base-v2", "cross-encoder/stsb-roberta-large"]
-        >>> metric = SASEnsemble()
-        >>> score = metric.compute(models=models, predictions=predictions, references=references, batch_size=4)
-        >>> print(score)
-            0.8148
+    >>> references = ["El sol brilla en el cielo.", "Las bicicletas son ecológicas.", "El café es una bebida popular."]
+    >>> predictions = ["El sol está en el cielo.", "Las bicicletas son buenas para el ambiente.", "El café es adictivo."]
+    >>> models = ["sentence-transformers/paraphrase-multilingual-mpnet-base-v2", "cross-encoder/stsb-roberta-large"]
+    >>> metric = SASEnsemble()
+    >>> scores, avg_score = metric.compute(models=models, predictions=predictions, references=references, batch_size=4)
+    >>> print(scores)
+    [0.9336, 0.7649, 0.7458]
+    >>> print(avg_score)
+    0.8148
 """
 
 
@@ -68,21 +75,35 @@ class SASEnsemble(evaluate.Metric):
         )
 
 
-    def _compute(self, models: list[str], predictions: list[str], references: list[str], batch_size: int) -> float:
-        scores = []
+    def _compute(
+        self, 
+        model_names: list[str], 
+        predictions: list[str], 
+        references: list[str],
+        return_average: bool = False,
+        batch_size: int = 64
+    ) -> list[float] | tuple[list[float], float]:
+        
+        metric_scores = []
 
-        for model in models:
-            model_config = AutoConfig.from_pretrained(model)
+        for model_name in model_names:
+            model_config = AutoConfig.from_pretrained(model_name)
 
-            if model_config.architectures is not None:
+            if model_config.architectures:
                 is_cross_encoder = any(architectures.endswith("ForSequenceClassification") for architectures in model_config.architectures)
 
             if is_cross_encoder:
-                metric = SemanticAnswerSimilarity(model_name=model)
+                metric = SemanticAnswerSimilarity(model_name=model_name)
             else:
-                metric = BiEncoderScore(model_name=model)
+                metric = BiEncoderScore(model_name=model_name)
 
-            score = metric.compute(predictions=predictions, references=references, batch_size=batch_size)
-            scores.append(score)
+            scores = metric.compute(predictions=predictions, references=references, batch_size=batch_size)
+            metric_scores.append(scores)
         
-        return float(np.mean(scores))
+        scores = np.mean(np.array(metric_scores), axis=0).tolist()
+        
+        if return_average:
+            avg_score = float(np.mean(scores))
+            return scores, avg_score
+        
+        return scores
