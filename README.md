@@ -6,11 +6,11 @@ The metrics follow the same interface as those of Hugging Face's [Evaluate](http
 
 ## Instructions
 1. Clone this repo.
-3. Install dependencies
+2. Install dependencies
 ```bash
 pip install -r requirements.txt
 ```
-4. Evaluate you models with any of the metrics available. To run a script with uv use the command below.
+3. Evaluate you models with any of the metrics available. To run a script with uv use the command below.
 ```bash
 python <your_script.py>
 ```
