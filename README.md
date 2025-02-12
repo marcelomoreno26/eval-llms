@@ -5,15 +5,14 @@ with old, recent and upcoming models.
 The metrics follow the same interface as those of Hugging Face's [Evaluate](https://huggingface.co/docs/evaluate/index) library.
 
 ## Instructions
-1. Follow [uv](https://github.com/astral-sh/uv) library installation instructions.
-2. Clone this repo.
-3. Run command on terminal to setup venv
+1. Clone this repo.
+3. Install dependencies
 ```bash
-uv sync
+pip install -r requirements.txt
 ```
 4. Evaluate you models with any of the metrics available. To run a script with uv use the command below.
 ```bash
-uv run python <your_script.py>
+python <your_script.py>
 ```
 
 

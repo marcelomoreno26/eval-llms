@@ -212,7 +212,7 @@ class PrometheusScore(evaluate.Metric):
                 message = tokenizer.apply_chat_template([{"role": "user", "content": prompt}], tokenize=False, add_generation_prompt=True)
                 messages.append(message)
         
-        sampling_params = SamplingParams(max_tokens=1024, top_p=0.8, temperature=0.3, repetition_penalty=1.05, min_p= 0.1, stop=["<|eot_id|>", "<|im_end|>"])
+        sampling_params = SamplingParams(max_tokens=1024, top_p=0.8, temperature=0.3, repetition_penalty=1.05, min_p= 0.1)
         outputs =  model.generate(messages, sampling_params=sampling_params)
         feedbacks = [output.outputs[0].text for output in outputs]
         scores = list(map(self.extract_score, feedbacks))
