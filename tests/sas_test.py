@@ -1,4 +1,4 @@
-from evaluation_metrics import SemanticAnswerSimilarity
+from eval_llms import SemanticAnswerSimilarity
 
 
 references = [

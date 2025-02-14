@@ -1,4 +1,4 @@
-from evaluation_metrics import PrometheusScore
+from eval_llms import PrometheusScore
 
 
 model_name = "meta-llama/Llama-3.1-8B-Instruct"

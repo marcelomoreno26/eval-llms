@@ -1,4 +1,4 @@
-from evaluation_metrics import BiEncoderScore
+from eval_llms import BiEncoderScore
 
 
 references = [

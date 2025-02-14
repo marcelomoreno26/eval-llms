@@ -1,4 +1,4 @@
-from evaluation_metrics import Accuracy
+from eval_llms import Accuracy
 
 
 references = ["A", "B", "C"]
